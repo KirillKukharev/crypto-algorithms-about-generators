@@ -1,42 +1,42 @@
 def shift(current_list, parameters_of_polynomial):
-	""" A new value is inserted on the left side of the list (value_to_add)
-		and the most right value is the bit_out that is returning to the caller
-		function alongside the new list. value_to_add is the xor operation between
-		x^10 and x^3.
-		This function is executed on every run and returns to the caller the new list, 
-		which is the initial value for the next run and the outstrem bit
-	"""
-	value_to_add = current_list[parameters_of_polynomial[1]-1] ^ current_list[parameters_of_polynomial[0]-1]
-	current_list.insert(0, value_to_add)
-	bit_out = current_list.pop()
-	return current_list, bit_out
+    """ A new value is inserted on the left side of the list (value_to_add)
+        and the most right value is the bit_out that is returning to the caller
+        function alongside the new list. value_to_add is the xor operation between
+        x^10 and x^3.
+        This function is executed on every run and returns to the caller the new list, 
+        which is the initial value for the next run and the outstrem bit
+    """
+    value_to_add = current_list[parameters_of_polynomial[1]-1] ^ current_list[parameters_of_polynomial[0]-1]
+    current_list.insert(0, value_to_add)
+    bit_out = current_list.pop()
+    return current_list, bit_out
 
 def calc_output_stream(current_list, runs=15, parameters_of_polynomial = 0):
-	""" The default number of runs is 1023 because of the grade of polynomal. 
-	L=10, so the period of the output stream is 2^10 - 1 = 1023.
-	On every run a shift() operation is performed on the list
-	and the result is inserted in the list. In order to handle the output bit 
-	in an efficient way, every bit_out value is inserted in a new list 
-	called output stream. The list is printed on screen and in a file named "out.txt" 
-	"""
-	output_stream=[]
-	print("Итерация  |  Состояние   |  Выходной бит")
-	for i in range(runs):						
-		current_list, feedback = shift(current_list, parameters_of_polynomial)
-		if i > 9:
-		  print(f"{i}        |   {current_list}  |    {feedback}")
-		else:
-		  print(f"{i}         |   {current_list}  |    {feedback}")
-		output_stream.append(feedback)	
-	#print(output_stream)
-	print()
-	print("Output: ",end=" ")
-	print("".join(str(x) for x in output_stream))
-	create_output_stream_file("out.txt", output_stream)
+    """ The default number of runs is 1023 because of the grade of polynomal. 
+    L=10, so the period of the output stream is 2^10 - 1 = 1023.
+    On every run a shift() operation is performed on the list
+    and the result is inserted in the list. In order to handle the output bit 
+    in an efficient way, every bit_out value is inserted in a new list 
+    called output stream. The list is printed on screen and in a file named "out.txt" 
+    """
+    output_stream=[]
+    print("Итерация  |  Состояние   |  Выходной бит")
+    for i in range(runs):                       
+        current_list, feedback = shift(current_list, parameters_of_polynomial)
+        if i > 9:
+          print(f"{i}        |   {current_list}  |    {feedback}")
+        else:
+          print(f"{i}         |   {current_list}  |    {feedback}")
+        output_stream.append(feedback)  
+    #print(output_stream)
+    print()
+    print("Output: ",end=" ")
+    print("".join(str(x) for x in output_stream))
+    create_output_stream_file("out.txt", output_stream)
 
 def create_output_stream_file(filename, out_stream):
-	with open(filename, 'w') as out:		
-		out.write("".join(str(x) for x in out_stream))
+    with open(filename, 'w') as out:        
+        out.write("".join(str(x) for x in out_stream))
 
 def mod(num, a):
  
@@ -415,9 +415,80 @@ def test_bm():
     print_int_polynome(int_to_bin(fx), with_fx=0)
     print(f"L = {l}")
 
+def calc_key(key, g, p):
+    return (g ** key) % p
 
 
-if __name__=="__main__":	
+def DIFFIE_HELLMAN():
+
+    number_of_users = int(input("Введите количество человек: "))
+    
+    if number_of_users == 2:
+      A = int(input("Введите загаданное число для A: "))
+      B = int(input("Введите загаданное число для B: "))
+      g = int(input("Введите простое g: "))
+      p = int(input("Введите простое n: "))
+
+      A_public_key = calc_key(A, g, p)
+      B_public_key = calc_key(B, g, p)
+
+      A_shared_key = calc_key(A, B_public_key, p)
+      B_shared_key = calc_key(B, A_public_key, p)
+      print('Общий секретный ключ: {}'.format(A_shared_key))
+      pass
+    else:
+      A = int(input("Введите загаданное число для A: "))
+      B = int(input("Введите загаданное число для B: "))
+      C = int(input("Введите загаданное число для C: "))
+      g = int(input("Введите g: "))
+      p = int(input("Введите n: "))
+      p = 11
+      print("Шаг        |                Кто какой информацией будет обладать по шагам                |")
+      print("-------------------------------------------------------------------------------------------")
+      print("           |           A             |              B            |         C             |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 1      |    g={g} ;  n = {p}        |  g={g} ;  n = {p}            |  g={g} ;  n = {p}        | ")
+      print("-------------------------------------------------------------------------------------------")
+
+      A_public_key = calc_key(A, g, p)
+      B_public_key = calc_key(B, g, p)
+      C_public_key = calc_key(C, g, p)
+      print(f"Шаг 2      |    n,g ; x = {A}; X = {A_public_key}  |        n,g ; X = {A_public_key}.      |      n,g              |")
+      print("-------------------------------------------------------------------------------------------")
+
+      A_calc_key = calc_key(A, C_public_key, p)
+      B_calc_key = calc_key(B, A_public_key, p)
+      C_calc_key = calc_key(C, B_public_key, p)
+
+      print(f"Шаг 3      |        n,g ; x; X       |  n,g ; X ; y = {B}; Y = {B_public_key}  | n,g ; Y = {B_public_key}           |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 4      |     n,g ; x; X; Z={C_public_key}     |     n,g ; X ; y ; Y       |     n,g ; Y; Z={C_public_key}      |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 5      |  n,g ; x; X; Z; Z' = {C_calc_key}  |  n,g ; X; y; Y; Z' = {C_calc_key}    |   n,g ; Y; Z={C_public_key}        |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 6      |  n,g ; x; X; Z; Z' = {C_calc_key}  |n,g ; X; y; Y; Z' ; X' = {B_calc_key}| n,g ; Y; Z; X'={B_calc_key}     |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 7      | n,g ; x; X; Z; Z'; Y'={C_calc_key} |n,g ; X; y; Y; Z' ; X' = {B_calc_key}|n,g; Y; Z; X'; Y'={C_calc_key}    |")
+      print("-------------------------------------------------------------------------------------------")
+
+      A_shared_key = calc_key(A, C_calc_key, p)
+      B_shared_key = calc_key(B, A_calc_key, p)
+      C_shared_key = calc_key(C, B_calc_key, p)
+
+      print(f"Шаг 8      | k1={A_shared_key}, проверка k1 = {calc_key(1,pow(pow(pow(g,B),C),A),p)} |                           |                       |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 9      |                         | k2={B_shared_key}, проверка k2 = {calc_key(1,pow(pow(pow(g,C),A),B),p)}   |                       |")
+      print("-------------------------------------------------------------------------------------------")
+      print(f"Шаг 10     |                         |                           |k3={C_shared_key}, проверка k3 = {calc_key(1,pow(pow(pow(g,A),B),C),p)}|")
+
+
+      print('Общий секретный ключ: {}'.format(A_shared_key))
+      pass
+
+
+
+
+if __name__=="__main__":    
   print("Общая программа для всего:")
   print()
   print("1 - (LFSR)Построить регистр сдвига с линейной обратной связью с ассоцированным многочленом ... и выписать состояние регистра, если он был инициализирован вектором ...")
@@ -437,6 +508,7 @@ if __name__=="__main__":
   print("8 - Построить аддитивный генератор, ассоциированный с многочленом ...(x^4+x^3+1) и n = 4. Начальное состояние генератора - массив ...(12,2,0,11)")
   print()
   print("9 - (Алгоритм Берлекэмпа-Месси)Найдем регистр сдвига с линейной обратной связью, если нам известна последовательность битов, которая была им сгенерирована ... (01011110001)")
+  print("10 - Алгоритм DIFFIE-HELLMAN")
 
 
   condition = int(input("Что посчитать? Введите цифру: "))
@@ -532,4 +604,6 @@ if __name__=="__main__":
     print(f"На выходе стохастического генератора получили последовательность {arr_stoch_seq}")
   elif condition == 9:
     test_bm()
+  elif condition == 10:
+    DIFFIE_HELLMAN()
 
