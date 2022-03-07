@@ -137,7 +137,7 @@ def BBS():
     print (f"Пусть p = {p}, q = {q}")
     print(f"Число Блюма N = {n}")
     print(f"Целое число x = {number}")
-    for i in range(10): # количество бит(длина в текущем примере равна 10-битной)
+    for i in range(11): # количество бит(длина в текущем примере равна 10-битной)
         number = generate_next_number(number, n)
         bitArray = list('{0:0b}'.format(number))
         print(f"Число {i}: {number},  младший бит {bitArray[len(bitArray) - 1]}")
@@ -149,10 +149,6 @@ def BBS():
     print (outputArray)
     print ("Zero:", howManyZero)
     print ("One:", howManyOne)
-    # seryjnyTest(outputArray)
-    # pokerowyTest(outputArray)
-    # seriiTest(outputArray, '0')
-    # seriiTest(outputArray, '1')
 
 
 def gcd(a, b):
@@ -426,8 +422,23 @@ def DIFFIE_HELLMAN():
     if number_of_users == 2:
       A = int(input("Введите загаданное число для A: "))
       B = int(input("Введите загаданное число для B: "))
-      g = int(input("Введите простое g: "))
+      g = int(input("Введите простое g(g<n): "))
       p = int(input("Введите простое n: "))
+
+      arr_of_check = []
+      for i in range (p):
+        temp_var = mod(str(int(pow(g,i))), p)
+        arr_of_check.append(temp_var)
+      count = 0
+      for digit in range(len(arr_of_check)):
+          if digit in arr_of_check:
+              count+=1
+      print(arr_of_check)
+      if count == p-1:
+        pass
+      else:
+        print("Выберите другие значения, g не подходит")
+        return
 
       A_public_key = calc_key(A, g, p)
       B_public_key = calc_key(B, g, p)
@@ -436,13 +447,28 @@ def DIFFIE_HELLMAN():
       B_shared_key = calc_key(B, A_public_key, p)
       print('Общий секретный ключ: {}'.format(A_shared_key))
       pass
-    else:
+    elif number_of_users == 3:
       A = int(input("Введите загаданное число для A: "))
       B = int(input("Введите загаданное число для B: "))
       C = int(input("Введите загаданное число для C: "))
       g = int(input("Введите g: "))
       p = int(input("Введите n: "))
-      p = 11
+
+      arr_of_check = []
+      for i in range (p):
+        temp_var = mod(str(int(pow(g,i))), p)
+        arr_of_check.append(temp_var)
+      count = 0
+      for digit in range(len(arr_of_check)):
+          if digit in arr_of_check:
+              count+=1
+      print(arr_of_check)
+      if count == p-1:
+        pass
+      else:
+        print("Выберите другие значения, g не подходит")
+        return
+      
       print("Шаг        |                Кто какой информацией будет обладать по шагам                |")
       print("-------------------------------------------------------------------------------------------")
       print("           |           A             |              B            |         C             |")
@@ -484,18 +510,169 @@ def DIFFIE_HELLMAN():
 
       print('Общий секретный ключ: {}'.format(A_shared_key))
       pass
+    elif number_of_users == 4:
+      A = int(input("Введите загаданное число для A: "))
+      B = int(input("Введите загаданное число для B: "))
+      C = int(input("Введите загаданное число для C: "))
+      D = int(input("Введите загаданное число для D: "))
+      
+      g = int(input("Введите g: "))
+      n = int(input("Введите n: "))
+      print()
+      
+      arr_of_check = []
+      for i in range (n):
+        temp_var = mod(str(int(pow(g,i))), n)
+        arr_of_check.append(temp_var)
+      count = 0
+      for digit in range(len(arr_of_check)):
+          if digit in arr_of_check:
+              count+=1
+      print(arr_of_check)
+      if count == n-1:
+        pass
+      else:
+        print("Выберите другие значения, g не подходит")
+        return
+      
+      X_public_key = mod(str(int(pow(g,A))),n)
+      Y_public_key = mod(str(int(pow(g,B))),n)
+      Z_public_key = mod(str(int(pow(g,C))),n)
+      W_public_key = mod(str(int(pow(g,D))),n)
 
+      W_half_calc_key = mod(str(int(pow(W_public_key,A))),n)
+      X_half_calc_key = mod(str(int(pow(X_public_key,B))),n)
+      Y_half_calc_key = mod(str(int(pow(Y_public_key,C))),n)
+      Z_half_calc_key = mod(str(int(pow(Z_public_key,D))),n)
 
+      A_shared_key = mod(str(int(pow(Z_half_calc_key,A))),n)
+      B_shared_key = mod(str(int(pow(W_half_calc_key,B))),n)
+      C_shared_key = mod(str(int(pow(X_half_calc_key,C))),n)
+      D_shared_key = mod(str(int(pow(Y_half_calc_key,D))),n)
+
+      A_result_key = mod(str(int(pow(D_shared_key, A))), n)
+      B_result_key = mod(str(int(pow(A_shared_key, B))), n)
+      C_result_key = mod(str(int(pow(B_shared_key, C))), n)
+      D_result_key = mod(str(int(pow(C_shared_key, D))), n)
+
+      print(f"Ключ А = {A_result_key}, B = {B_result_key}, C = {C_result_key}, D = {D_result_key}")
+    
+def MTI():
+  n = int(input("Введите простое n: "))
+  g = int(input("Введите простое g(<n): "))
+
+  A = int(input("Введите a(<n-2): "))
+  B = int(input("Введите b(<n-2): "))
+  
+  Za_calc = calc_key(A, g, n)
+  Zb_calc = calc_key(B, g, n)
+
+  x = int(input("Введите x(<n-2): "))
+  X = calc_key(x, g, n)
+
+  y = int(input("Введите y(<n-2): "))
+  Y = calc_key(y, g, n)
+  A_calc_result = calc_key(1, pow(Y, A) * pow(Zb_calc, x), n)
+  B_calc_result = calc_key(1, pow(X, B)* pow(Za_calc,y), n)
+  print(f"k = {A_calc_result}, проверка, вычислим k(с чертой) = {B_calc_result}")
+
+def ESP_DSA():
+  p = int(input("Введите простое число p(например 23): "))
+  q = int(input("Введите простое число q(например 11): "))
+  t = int(input("Введите число t(<p): "))
+  if (p-1) % q == 0:
+    print("q делит p-1")
+  else:
+    print("Выберите другие числа p и q")
+    return 
+  if mod(str(int(pow(t,((p-1)/q)))), p) == 1:
+    print("Выберите другое число t - это не подходит")
+    return 
+  else:
+    h_m = int(input("Введите хэш значение h(m): "))
+    g = mod(str(int(pow(t,(p-1)/q))), p)
+    x = int(input("Введите число x(<q например 2): "))
+    print("Найдем y")
+    y = mod(str(pow(g,x)),p)
+    print(f"Открытый ключ (p, q, g, y) = ({p}, {q}, {g}, {y}), закрытый ключ x = {x}")
+    print("Вычислим цифровую подпись для сообщения h(m)")
+    k = int(input("Введите k(<q например 4): "))
+    smth, k_minus_one, smth_2 = extended_gcd(k,q)
+    if k_minus_one < 0:
+      k_minus_one = -(k_minus_one)%q
+    r = mod(str(mod(str(pow(g, k)),p)),q)
+    s = mod(str(k_minus_one * (x*r + h_m)), q)
+    if  0< r < q and 0 < s < q:
+      print(f'Результат формирования (r, s) = ({r},{s})')
+      print()
+    else:
+      print("Следует заного сгенерировать подпись, поменять например k.")
+      return 
+    print("Выполним проверку")
+    smthfb3,s_minus_one, sthfj_2 = extended_gcd(s, q)
+    if s_minus_one < 0:
+      s_minus_one = -(s_minus_one)%q
+    v = mod(str(s_minus_one),q)
+    z1 = mod(str(h_m*v),q)
+    z2 = mod(str(r*v),q)
+    u = mod(str(mod(str(pow(g,z1)*pow(y,z2)),p)),q)
+    if r == u:
+      print(f"Подпись подлинная u = {u}")
+    else:
+      print("Где-то ошибка")
+
+def ESP_EL_GAMAL():
+  print("p выбирается таким, чтобы выполнялось равенство p = 2q + 1,где q - также простое число. Тогда в качестве g можно взять любое число")
+  print()
+  p = int(input("Введите простое нечетное число p: "))
+  g = int(input("Введите число g(<p например 2): "))
+  print()
+  if mod(str((int(pow(g,41)))),p) != 1:
+    print("g подходит")
+  arr_of_check = []
+  for i in range (p):
+    temp_var = mod(str(int(pow(g,i))), p)
+    arr_of_check.append(temp_var)
+  count = 0
+  for digit in range(len(arr_of_check)):
+    if digit in arr_of_check:
+      count+=1
+  print(arr_of_check)
+  if count == p-1:
+    x = int(input("Введите число x (<p-1): "))
+    y = mod(str(int(pow(g,x))),p)
+    h_m=int(input("Введите хэш-значение h(m): "))
+    k = int(input("Введите k(простое с p-1): "))
+    if gcd(k,p-1):
+      hz_val,k_minus_one,hz_val2 = extended_gcd(k,p-1)
+      if k_minus_one <0:
+        k_minus_one = -(k_minus_one)%(p-1)
+      a = mod(str(int(pow(g,k))),p)
+      b = mod(str(int(-(h_m - x*a)*k_minus_one)),p-1)
+      print(f"Получилась подпись: ({a},{b})")
+      print()
+      print("Проверим подпись")
+      validate_1 = mod(str(int(pow(y,a))*int(pow(a,b))),p)
+      print(f"Значениe y^a*a^b = {validate_1}")
+      validate_2 = mod(str(int(pow(g,h_m))),p)
+      print(f"Значениe g^h(m) mod p = {validate_1}")
+      if validate_1 == validate_2:
+        print("Подпись подлинная")
+  else:
+    print("Попробуйте заного выбрать число g, это не подходит")
+    
+  
+  
 
 
 if __name__=="__main__":    
   print("Общая программа для всего:")
   print()
-  print("1 - (LFSR)Построить регистр сдвига с линейной обратной связью с ассоцированным многочленом ... и выписать состояние регистра, если он был инициализирован вектором ...")
+  print("1 - (LFSR?)Построить регистр сдвига с линейной обратной связью с ассоцированным многочленом ... и выписать состояние регистра, если он был инициализирован вектором ...")
   print()
   print("2 - Найти модуль числа")
   print()
-  print("3 - Расширенный алгоритм Евклида")
+  print("3 - Расширенный алгоритм Евклида(Поиск модуля 3^-1 = 1 mod 5 на вход (3, 5), ответ x)")
   print()
   print("4 - Задача про рюкзаки, где дан вектор B и найти исходный вектор А")
   print()
@@ -508,7 +685,14 @@ if __name__=="__main__":
   print("8 - Построить аддитивный генератор, ассоциированный с многочленом ...(x^4+x^3+1) и n = 4. Начальное состояние генератора - массив ...(12,2,0,11)")
   print()
   print("9 - (Алгоритм Берлекэмпа-Месси)Найдем регистр сдвига с линейной обратной связью, если нам известна последовательность битов, которая была им сгенерирована ... (01011110001)")
+  print()
   print("10 - Алгоритм DIFFIE-HELLMAN")
+  print()
+  print("11 - Алгоритм MTI")
+  print()
+  print("12 - Алгоритм ЭЦП DSA")
+  print()
+  print("13 - Алгоритм ЭЦП Эль-Гамаля")
 
 
   condition = int(input("Что посчитать? Введите цифру: "))
@@ -520,6 +704,7 @@ if __name__=="__main__":
     print(init_state)
     print(parameters_of_polynomial)
     calc_output_stream(init_state, pow(2,len(init_state))-1,parameters_of_polynomial)
+    
   elif condition == 2:
     positive_num = input("Положительное число? + Да, - Нет ")
     if positive_num == "+":
@@ -528,15 +713,17 @@ if __name__=="__main__":
       multip = num*num2
       num = str(num)
       multip = str(multip)
-      print(mod(str(15), 16))
+      print(mod(str(3), 5))
     else:
       # -число % модуль
       print(-(844)%713)
+      
   elif condition == 3:
     # extended_gcd( первое число, второе число)
-    gcd, x, y = extended_gcd(68, 315)
+    gcd, x, y = extended_gcd(25, 41)
     print('The GCD is', gcd)
     print(f'x = {x}, y = {y}')
+    
   elif condition == 4:
     summa = 0
     from fractions import gcd
@@ -546,6 +733,7 @@ if __name__=="__main__":
     B = list(map(int, input().split()))
     print(f"Введен вектор B = {B}")
     backpack_find_A(B, arr, arr2, summa, symbolK)
+    
   elif condition == 5:
     sequence = list(map(int,input("Введите последовательность: ").split()))
     s4 = {"c1": sequence[3], "c2":sequence[2], "c3":sequence[1], "c4":sequence[0]}
@@ -568,10 +756,13 @@ if __name__=="__main__":
       if s7[num] !=1:
         del s7[num]
     print(s7, "  ", sequence[7])
+    
   elif condition == 6:
     BBS()
+    
   elif condition == 7:
     RSA()
+    
   elif condition == 8:
     polynomial = list(map(int,input("Введите многочлен(степени): ").split()))
     initial_state = list(map(int,input("Введите начальное состояние ").split()))
@@ -590,10 +781,12 @@ if __name__=="__main__":
     print(f"На выходе аддитивного генератора получили последовательность: {arr}")
     print("--------------")
     print("Такт  |  Выход  |  Заполнение регистров  |")
-    key_table = [2, 1, 0, 12, 5, 3, 13, 10, 5, 14, 8, 7, 11, 9, 15, 4] # непонятно откуда взять эту таблицу(скорее всего дана в условии)
+    # key_table = [2, 1, 0, 12, 5, 3, 13, 10, 5, 14, 8, 7, 11, 9, 15, 4] # непонятно откуда взять эту таблицу(скорее всего дана в условии)
+    #key_table = [2, 1, 0, 12, 5, 3, 13, 10, 5, 14, 8, 7, 11, 9, 15, 4]
+    key_table = [9, 10, 3, 2, 15, 4, 28, 6, 24, 1, 0, 11, 26, 18, 14, 23, 31, 8, 30, 19, 5, 13, 22, 7, 17, 25, 20, 27, 12, 29, 21, 16]
     arr_stoch_seq =[]
-    for i in range(8):
-      for j in range(16):
+    for i in range(10):
+      for j in range(32): # размерность n
         if start_poson[polynomial[1]-1] == key_table[j]:
           out_res = key_table[generate_next_numb(j + start_poson[polynomial[0]-1],pow(2,n),1)]
           break
@@ -602,8 +795,19 @@ if __name__=="__main__":
       arr_stoch_seq.append(out_res)
       print(f"{i+1}  |  {out_res}  |  {start_poson}  ")
     print(f"На выходе стохастического генератора получили последовательность {arr_stoch_seq}")
+    
   elif condition == 9:
     test_bm()
+    
   elif condition == 10:
     DIFFIE_HELLMAN()
+    
+  elif condition == 11:
+    MTI()
+    
+  elif condition == 12:
+    ESP_DSA()
+    
+  elif condition == 13:
+    ESP_EL_GAMAL()
 
