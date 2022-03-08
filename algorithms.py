@@ -201,36 +201,42 @@ def randomprime(length, millerrounds):
 
 def RSA():
   p = randomprime(length = 6 // 2, millerrounds = 2)
+  print(f"Значение p = {p}")
   q = randomprime(length = 6 // 2, millerrounds = 2)
+  print(f"Значение q = {q}")
   n = p * q
+  print(f"n = {n}")
   phi = (p-1)*(q-1)
+  print(f"phi(n) = {phi}")
   e = 0
   bitArray = []
   outputArray = []
   for i in range(40):
     if gcd(phi, i) == 1:
       e = i
-  e = 3
+  print(f"e = {e}")
   start_x = 14 # стартовое число генератора x0
+  print(f"Случайное стартовое целое число x0 = {start_x}")
   if start_x % n:
     outputArray.append(0)
   else:
     outputArray.append(1)
   howManyZero = 0
   howManyOne = 0
-  for i in range(9): # количество бит(длина в текущем примере равна 10-битной)
+  print(f"Число 0: {start_x},  младший бит {outputArray[0]}")
+  for i in range(10): # количество бит(длина в текущем примере равна 10-битной)
         start_x = generate_next_numb(start_x, n, e)
         bitArray = list('{0:0b}'.format(start_x))
-        print(f"Число {i}: {start_x},  младший бит {bitArray[len(bitArray) - 1]}")
+        print(f"Число {i+1}: {start_x},  младший бит {bitArray[len(bitArray) - 1]}")
         if bitArray[len(bitArray) - 1] == '0':
             howManyZero += 1
         if bitArray[len(bitArray) - 1] == '1':
             howManyOne += 1
         outputArray.append(bitArray[len(bitArray) - 1])
   print (outputArray)
-  print(f"p = {p}")
-  print(f"q = {q}")
-  print(f"n = {n}")
+  # print(f"p = {p}")
+  # print(f"q = {q}")
+  # print(f"n = {n}")
   print ("Zero:", howManyZero)  
   print ("One:", howManyOne)
 
@@ -660,6 +666,49 @@ def ESP_EL_GAMAL():
         print("Подпись подлинная")
   else:
     print("Попробуйте заного выбрать число g, это не подходит")
+
+
+def ESP_GOST():
+  p_param = int(input("Введите простое число p: "))
+  q_param = int(input("Введите простое число q(p-1 должно делиться на q): "))
+  if (p_param-1)%q_param ==0:
+    g_param = int(input("Введите целое число g(такое, что g^q mod p = 1; <p-1): "))
+    if mod(str(int(pow(g_param,q_param))), p_param) == 1:
+      print("Значения проходят проверку")
+      print()
+      x = int(input("Введите целое число x: "))
+      y = mod(str(int(pow(g_param,x))),p_param)
+      print(f"Получили открытый ключ (p, q, g, y) = ({p_param}, {q_param}, {g_param}, {y}) и закрытый ключ x = {x}")
+      print()
+      print("Сформируем подпись")
+      hash_m = int(input("Введите хэш-значение h(m): "))
+      k = int(input("Введите число k(<q): "))
+      temp_val_for_r= mod(str(int(pow(g_param,k))),p_param)
+      r = mod(str(temp_val_for_r),q_param)
+      s = mod(str(int((x*r + k*hash_m))),q_param)
+      if r*s ==0:
+        print("Выберите другие значения, т.к. r*s = 0")
+        return
+      else:
+        print("Все норм")
+        print(f"Цифровая подпись равна r mod2^256 = {mod(str(r),int(pow(2,256)))} и s mod2^256 = {mod(str(s), int(pow(2,256)))}")
+        print()
+        print("Проверим подпись")
+        z0 = mod(str(int((pow(hash_m,q_param-2)))), q_param)
+        z1 = mod(str(s*z0),q_param)
+        z2 = mod(str(int((q_param-r)*z0)),q_param)
+        temp_u = mod(str(int(pow(g_param,z1)*pow(y,z2))),p_param)
+        u = mod(str(temp_u),q_param)
+        print(f"Получились значения u = {u} и r = {r}")
+        if u == r:
+          print("Подпись подлинная, а сообщение неизменно")
+    else:
+      print("Выберите другое g")
+      return
+  else:
+    print("Введите другие значения чисел p и q")
+    return
+  
     
   
   
@@ -693,6 +742,8 @@ if __name__=="__main__":
   print("12 - Алгоритм ЭЦП DSA")
   print()
   print("13 - Алгоритм ЭЦП Эль-Гамаля")
+  print()
+  print("14 - Алгоритм ЭЦП Гост")
 
 
   condition = int(input("Что посчитать? Введите цифру: "))
@@ -785,7 +836,7 @@ if __name__=="__main__":
     #key_table = [2, 1, 0, 12, 5, 3, 13, 10, 5, 14, 8, 7, 11, 9, 15, 4]
     key_table = [9, 10, 3, 2, 15, 4, 28, 6, 24, 1, 0, 11, 26, 18, 14, 23, 31, 8, 30, 19, 5, 13, 22, 7, 17, 25, 20, 27, 12, 29, 21, 16]
     arr_stoch_seq =[]
-    for i in range(10):
+    for i in range(12):
       for j in range(32): # размерность n
         if start_poson[polynomial[1]-1] == key_table[j]:
           out_res = key_table[generate_next_numb(j + start_poson[polynomial[0]-1],pow(2,n),1)]
@@ -810,4 +861,6 @@ if __name__=="__main__":
     
   elif condition == 13:
     ESP_EL_GAMAL()
+  elif condition == 14:
+    ESP_GOST()
 
