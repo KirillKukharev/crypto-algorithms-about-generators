@@ -708,11 +708,31 @@ def ESP_GOST():
   else:
     print("Введите другие значения чисел p и q")
     return
-  
-    
-  
-  
 
+def RC4():
+  n = int(input("Введите n: "))
+  K = list(map(int,input("Введите вектор K: ").split()))
+  S_block = [int(input("Введите очередное значение: ")) for i in range(int(pow(2,n)))]
+  X_block = [ K[sublist] for elem in range(0,int(pow(2,n)),len(K)) for sublist in range(len(K))]
+  print(X_block)
+  print("Проведем инициализацию блока замены")
+  print(f"j = 0 |  S = {S_block}  |  X = {X_block}")
+  j = 0
+  for i in range(int(pow(2,n))):
+    j = mod(str(j + X_block[i] + S_block[i]),int(pow(2,n)))
+    S_block[i], S_block[j] = S_block[j], S_block[i]
+    print(f"i = {i}  |  j = {j}  |  S_block = {S_block}")
+  print("Сгенерируем несколько первых псевдослучайных байтов")
+  print("  I  |  J  |  S  |  T  |  z  |")
+  I_part = 0
+  J_part = 0
+  for i in range(8):
+    I_part = mod(str(I_part + 1),int(pow(2,n)))
+    J_part = mod(str(J_part + S_block[I_part]), int(pow(2,n)))
+    S_block[I_part], S_block[J_part] = S_block[J_part], S_block[I_part]
+    T_part = mod(str(S_block[I_part] + S_block[J_part]), int(pow(2,n)))
+    z = S_block[T_part]
+    print(f"  {I_part}  |  {J_part}  |  {S_block}  |  {T_part}  |  {z} = {z:b}")
 
 if __name__=="__main__":    
   print("Общая программа для всего:")
@@ -744,6 +764,8 @@ if __name__=="__main__":
   print("13 - Алгоритм ЭЦП Эль-Гамаля")
   print()
   print("14 - Алгоритм ЭЦП Гост")
+  print()
+  print("15 - Алгоритм RC4")
 
 
   condition = int(input("Что посчитать? Введите цифру: "))
@@ -863,4 +885,6 @@ if __name__=="__main__":
     ESP_EL_GAMAL()
   elif condition == 14:
     ESP_GOST()
+  elif condition == 15:
+    RC4()
 
